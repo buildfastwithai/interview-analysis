@@ -13,6 +13,7 @@ export async function POST(request: Request) {
       method: "POST",
       body: formData,
     });
+    console.log("response", await response.json());
 
     if (!response.ok) {
       const errorData = await response.json();

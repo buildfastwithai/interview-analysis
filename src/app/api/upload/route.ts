@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 export const maxDuration = 299;
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 const BUCKET_NAME = process.env.DIGITAL_OCEAN_SPACES_BUCKET_NAME!;
 const ENDPOINT = process.env.DIGITAL_OCEAN_SPACES_ENDPOINT!;
@@ -59,8 +61,9 @@ export async function POST(request: NextRequest) {
     )}`;
     const bucketName = BUCKET_NAME;
 
-    // Convert file to buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
+    // Stream the file instead of loading it entirely into memory
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
     const uploadParams = {
       Bucket: bucketName,
