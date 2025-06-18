@@ -7,6 +7,7 @@ import { TranscriptResult } from "@/components/transcript-result";
 import { TranscriptResponse } from "@/lib/api";
 import InterviewAnalysis from "@/components/InterviewAnalysis";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ComparePDF from "@/components/compare-pdf";
 
 export default function Home() {
   const [transcriptResult, setTranscriptResult] =
@@ -42,6 +43,9 @@ export default function Home() {
               <TabsTrigger value="interview-analysis">
                 Interview Analysis
               </TabsTrigger>
+              <TabsTrigger value="compare-pdf">
+                Compare PDF
+              </TabsTrigger>
               {/* <TabsTrigger value="transcript-extraction">
                 Transcript Extraction
               </TabsTrigger> */}
@@ -49,6 +53,10 @@ export default function Home() {
 
             <TabsContent value="interview-analysis">
               <InterviewAnalysis />
+            </TabsContent>
+
+            <TabsContent value="compare-pdf">
+              <ComparePDF />
             </TabsContent>
 
             {/* <TabsContent value="transcript-extraction"> */}
