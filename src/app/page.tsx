@@ -42,17 +42,17 @@ export default function Home() {
               <TabsTrigger value="interview-analysis">
                 Interview Analysis
               </TabsTrigger>
-              <TabsTrigger value="transcript-extraction">
+              {/* <TabsTrigger value="transcript-extraction">
                 Transcript Extraction
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
 
             <TabsContent value="interview-analysis">
               <InterviewAnalysis />
             </TabsContent>
 
-            <TabsContent value="transcript-extraction">
-              <div className="max-w-4xl mx-auto">
+            {/* <TabsContent value="transcript-extraction"> */}
+            {/* <div className="max-w-4xl mx-auto">
                 {transcriptResult ? (
                   <TranscriptResult
                     result={transcriptResult}
@@ -61,10 +61,10 @@ export default function Home() {
                 ) : (
                   <VideoUpload onTranscriptResult={handleTranscriptResult} />
                 )}
-              </div>
+              </div> */}
 
-              {/* Features */}
-              {!transcriptResult && (
+            {/* Features */}
+            {/* {!transcriptResult && (
                 <div className="max-w-4xl mx-auto mt-12">
                   <h2 className="text-2xl font-bold text-center mb-8">
                     Features
@@ -97,8 +97,8 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-              )}
-            </TabsContent>
+              )} */}
+            {/* </TabsContent> */}
           </Tabs>
         </div>
       </div>
