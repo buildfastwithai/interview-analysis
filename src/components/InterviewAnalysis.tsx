@@ -37,7 +37,6 @@ import {
   TableIcon,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { generateInterviewPDF } from "@/lib/pdf-generator";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -59,6 +58,8 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { generateInterviewPDF } from "./interview-analysis-pdf";
+import { generateInterviewPDFTranscript } from "./interview-analsis-pdf-transcript";
 
 export interface SkillAssessment {
   skill: string;
@@ -125,10 +126,12 @@ export default function InterviewAnalysis() {
   );
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  const [inputType, setInputType] = useState<"text" | "pdf">("text");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   const validateInputs = () => {
-    if (!transcriptText.trim()) {
-      setError("Please enter transcript text");
+    if (!transcriptText.trim() && !pdfFile) {
+      setError("Please enter transcript text or upload a PDF file");
       return false;
     }
 
@@ -149,6 +152,18 @@ export default function InterviewAnalysis() {
     return true;
   };
 
+  const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        setError("Please upload a PDF file");
+        return;
+      }
+      setPdfFile(file);
+      setError(null);
+    }
+  };
+
   const analyzeInterview = async () => {
     if (!validateInputs()) return;
 
@@ -159,15 +174,18 @@ export default function InterviewAnalysis() {
     try {
       const formData = new FormData();
 
-      // Create a text file from the input
-      const textBlob = new Blob([transcriptText], { type: "text/plain" });
-      formData.append("file", textBlob, "transcript.txt");
+      if (inputType === "text") {
+        // Create a text file from the input
+        const textBlob = new Blob([transcriptText], { type: "text/plain" });
+        formData.append("file", textBlob, "transcript.txt");
+      } else if (pdfFile) {
+        formData.append("file", pdfFile);
+      }
 
       formData.append("skills_to_assess", skills);
       formData.append("job_role", jobRole);
       formData.append("company_name", companyName);
       formData.append("ai_provider", "openai");
-      formData.append("input_type", "text");
 
       // Simulate progress for better UX
       const progressInterval = setInterval(() => {
@@ -268,15 +286,15 @@ export default function InterviewAnalysis() {
 
   const downloadPDF = (includeTranscript: boolean = false) => {
     if (!analysisResult) return;
-
-    try {
-      generateInterviewPDF(analysisResult, {
-        includeTranscript,
+    
+    if (includeTranscript) {
+      generateInterviewPDFTranscript(analysisResult, {
         includeRawData: false,
       });
-    } catch (error) {
-      console.error("PDF generation failed:", error);
-      setError("Failed to generate PDF. Please try again.");
+    } else {
+      generateInterviewPDF(analysisResult, {
+        includeRawData: false,
+      });
     }
   };
 
@@ -344,20 +362,71 @@ export default function InterviewAnalysis() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
-              <div className="space-y-4">
-                <Label htmlFor="transcript" className="text-lg font-semibold">
-                  Interview Transcript
-                </Label>
-                <ScrollArea className="h-[200px] border-2 rounded-md">
-                  <Textarea
-                    id="transcript"
-                    placeholder="Paste your interview transcript here..."
-                    value={transcriptText}
-                    onChange={(e) => setTranscriptText(e.target.value)}
-                    className="min-h-[400px] text-base p-4 transition-all duration-200 border-0"
-                  />
-                </ScrollArea>
-              </div>
+              <Tabs value={inputType} onValueChange={(v) => setInputType(v as "text" | "pdf")} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="text">Paste Text</TabsTrigger>
+                  <TabsTrigger value="pdf">Upload PDF</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="text">
+                  <div className="space-y-4">
+                    <Label htmlFor="transcript" className="text-lg font-semibold">
+                      Interview Transcript
+                    </Label>
+                    <ScrollArea className="h-[200px] border-2 rounded-md">
+                      <Textarea
+                        id="transcript"
+                        placeholder="Paste your interview transcript here..."
+                        value={transcriptText}
+                        onChange={(e) => setTranscriptText(e.target.value)}
+                        className="min-h-[400px] text-base p-4 transition-all duration-200 border-0"
+                      />
+                    </ScrollArea>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="pdf">
+                  <div className="space-y-4">
+                    <Label htmlFor="pdf" className="text-lg font-semibold">
+                      Upload PDF Document
+                    </Label>
+                    <div className="border-2 border-dashed rounded-lg p-8 text-center space-y-4">
+                      <Input
+                        id="pdf"
+                        type="file"
+                        accept=".pdf"
+                        onChange={handlePdfUpload}
+                        className="hidden"
+                      />
+                      <Label
+                        htmlFor="pdf"
+                        className="cursor-pointer flex flex-col items-center justify-center gap-4"
+                      >
+                        <div className="p-4 bg-blue-50 rounded-full">
+                          <Upload className="h-8 w-8 text-blue-500" />
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-lg font-medium">
+                            {pdfFile ? pdfFile.name : "Choose PDF file"}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            or drag and drop your PDF file here
+                          </p>
+                        </div>
+                      </Label>
+                      {pdfFile && (
+                        <Button
+                          variant="outline"
+                          className="mt-2"
+                          onClick={() => setPdfFile(null)}
+                        >
+                          Remove PDF
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
 
               <div className="space-y-4">
                 <Label htmlFor="skills" className="text-lg font-semibold">

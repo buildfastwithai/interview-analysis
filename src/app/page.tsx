@@ -7,6 +7,7 @@ import { TranscriptResult } from "@/components/transcript-result";
 import { TranscriptResponse } from "@/lib/api";
 import InterviewAnalysis from "@/components/InterviewAnalysis";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ComparePDF from "@/components/compare-pdf";
 
 export default function Home() {
   const [transcriptResult, setTranscriptResult] =
@@ -38,12 +39,15 @@ export default function Home() {
         {/* Main Content */}
         <div className="max-w-7xl mx-auto">
           <Tabs defaultValue="interview-analysis" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="interview-analysis">
                 Interview Analysis
               </TabsTrigger>
               <TabsTrigger value="transcript-extraction">
                 Transcript Extraction
+              </TabsTrigger>
+              <TabsTrigger value="compare-pdf">
+                Compare PDF
               </TabsTrigger>
             </TabsList>
 
@@ -98,6 +102,10 @@ export default function Home() {
                   </div>
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="compare-pdf">
+              <ComparePDF />
             </TabsContent>
           </Tabs>
         </div>
