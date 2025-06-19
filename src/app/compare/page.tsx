@@ -1,7 +1,7 @@
 import ComparePDF from "@/components/compare-pdf";
 
 export const metadata = {
-  title: "Compare Interview Analyses",
+  title: "Compare Interview Analysis",
   description: "Compare original and AI-generated interview analysis reports",
 };
 

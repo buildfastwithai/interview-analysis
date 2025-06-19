@@ -92,7 +92,7 @@ const ComparePDF = () => {
         className="mb-8"
       >
         <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Compare Interview Analyses
+          Compare Interview Analysis
         </h1>
         <p className="text-gray-600 text-lg leading-relaxed max-w-3xl">
           Upload and compare original analysis with AI-generated analysis to identify similarities, differences, and recommendations.

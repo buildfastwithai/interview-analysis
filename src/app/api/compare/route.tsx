@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 // API endpoint for the backend service
-const API_ENDPOINT = process.env.API_ENDPOINT || "http://localhost:8000";
+const API_ENDPOINT = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export async function POST(request: Request) {
   try {
@@ -17,8 +17,10 @@ export async function POST(request: Request) {
     }
 
     // Validate file types
-    if (!originalAnalysis.name.toLowerCase().endsWith(".pdf") || 
-        !aiAnalysis.name.toLowerCase().endsWith(".pdf")) {
+    if (
+      !originalAnalysis.name.toLowerCase().endsWith(".pdf") ||
+      !aiAnalysis.name.toLowerCase().endsWith(".pdf")
+    ) {
       return NextResponse.json(
         { message: "Only PDF files are accepted" },
         { status: 400 }
@@ -46,7 +48,6 @@ export async function POST(request: Request) {
 
     const comparisonResult = await response.json();
     return NextResponse.json(comparisonResult);
-    
   } catch (error: any) {
     console.error("Error comparing PDF documents:", error);
     return NextResponse.json(
