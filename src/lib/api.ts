@@ -18,20 +18,38 @@ export interface TranscriptResponse {
 export async function extractTranscript(
   request: TranscriptRequest
 ): Promise<TranscriptResponse> {
-  const response = await fetch(`${API_URL}/extract-transcript`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 240000); // 4 minute timeout
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to extract transcript");
+  try {
+    const response = await fetch(`${API_URL}/extract-transcript`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ detail: "Unknown error" }));
+      throw new Error(error.detail || "Failed to extract transcript");
+    }
+
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(
+        "Request timeout - transcript extraction is taking too long"
+      );
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function uploadAudioForTranscript(
@@ -46,15 +64,31 @@ export async function uploadAudioForTranscript(
     formData.append("format_prompt", formatPrompt);
   }
 
-  const response = await fetch(`${API_URL}/upload-audio`, {
-    method: "POST",
-    body: formData,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 240000); // 4 minute timeout
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to process audio file");
+  try {
+    const response = await fetch(`${API_URL}/upload-audio`, {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ detail: "Unknown error" }));
+      throw new Error(error.detail || "Failed to process audio file");
+    }
+
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Request timeout - audio processing is taking too long");
+    }
+    throw error;
   }
-
-  return response.json();
 }
