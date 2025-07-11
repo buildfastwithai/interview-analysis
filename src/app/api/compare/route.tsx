@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
     // Send files directly to the backend API for comparison with timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 240000); // 4 minute timeout
+    const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minute timeout
 
     try {
       const response = await fetch(`${API_ENDPOINT}/compare-analyses`, {

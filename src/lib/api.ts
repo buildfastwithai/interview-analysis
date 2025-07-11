@@ -19,7 +19,7 @@ export async function extractTranscript(
   request: TranscriptRequest
 ): Promise<TranscriptResponse> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 240000); // 4 minute timeout
+  const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minute timeout
 
   try {
     const response = await fetch(`${API_URL}/extract-transcript`, {
@@ -65,7 +65,7 @@ export async function uploadAudioForTranscript(
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 240000); // 4 minute timeout
+  const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minute timeout
 
   try {
     const response = await fetch(`${API_URL}/upload-audio`, {

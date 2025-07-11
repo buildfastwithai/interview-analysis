@@ -1,4 +1,4 @@
-export const maxDuration = 299;
+export const maxDuration = 600;
 
 export async function POST(request: Request) {
   try {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     // Forward the request to FastAPI backend with timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 240000); // 4 minute timeout
+    const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minute timeout
 
     try {
       const response = await fetch(endpoint, {
