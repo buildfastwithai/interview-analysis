@@ -38,60 +38,18 @@ import {
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { generateInterviewPDF } from "@/lib/pdf-generator";
+// Import types from the new types file
+import {
+  SkillAssessment,
+  QuestionAnswer,
+  InterviewInsights,
+  ComprehensiveAnalysisResponse,
+} from "@/lib/types";
 
-export interface SkillAssessment {
-  skill: string;
-  level:
-    | "Beginner"
-    | "Intermediate"
-    | "Advanced"
-    | "Expert"
-    | "Not Demonstrated";
-  confidence_score: number;
-  evidence: string;
-  recommendations: string;
-}
+// Keep the existing component interfaces for backward compatibility
+export type { SkillAssessment, QuestionAnswer, InterviewInsights };
 
-export interface QuestionAnswer {
-  question: string;
-  answer: string;
-  grade: "Excellent" | "Good" | "Average" | "Below Average" | "Poor";
-  score: number;
-  feedback: string;
-  key_points_covered: string[];
-  areas_for_improvement: string[];
-}
-
-export interface InterviewInsights {
-  overall_performance_score: number;
-  communication_clarity: number;
-  technical_depth: number;
-  problem_solving_ability: number;
-  confidence_level: number;
-  strengths: string[];
-  weaknesses: string[];
-  key_achievements_mentioned: string[];
-  red_flags: string[];
-  interview_duration_analysis: string;
-  speech_patterns: string;
-  engagement_level: string;
-  cultural_fit_indicators: string[];
-  hiring_recommendation: string;
-  next_steps: string[];
-}
-
-export interface AnalysisResponse {
-  filename?: string;
-  video_id?: string;
-  raw_transcript: string;
-  formatted_transcript: string;
-  ai_provider: string;
-  file_chunks?: number;
-  skill_assessments: SkillAssessment[];
-  questions_and_answers: QuestionAnswer[];
-  interview_insights: InterviewInsights;
-  analysis_summary: string;
-}
+export interface AnalysisResponse extends ComprehensiveAnalysisResponse {}
 
 export default function InterviewAnalysis() {
   const [file, setFile] = useState<File | null>(null);
