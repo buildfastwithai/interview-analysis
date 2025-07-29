@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Remove the external API URL since we're now using local Next.js endpoints
+// const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export interface TranscriptRequest {
   video_url: string;
@@ -18,7 +19,7 @@ export interface TranscriptResponse {
 export async function extractTranscript(
   request: TranscriptRequest
 ): Promise<TranscriptResponse> {
-  const response = await fetch(`${API_URL}/extract-transcript`, {
+  const response = await fetch(`/api/extract-transcript`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -46,7 +47,7 @@ export async function uploadAudioForTranscript(
     formData.append("format_prompt", formatPrompt);
   }
 
-  const response = await fetch(`${API_URL}/upload-audio`, {
+  const response = await fetch(`/api/upload-audio`, {
     method: "POST",
     body: formData,
   });
@@ -54,6 +55,19 @@ export async function uploadAudioForTranscript(
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || "Failed to process audio file");
+  }
+
+  return response.json();
+}
+
+// Health check function
+export async function checkApiHealth(): Promise<{ status: string; message: string }> {
+  const response = await fetch(`/api/health`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error("Health check failed");
   }
 
   return response.json();

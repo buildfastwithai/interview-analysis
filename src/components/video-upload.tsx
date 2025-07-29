@@ -12,8 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { Upload, Video, Link, FileAudio } from "lucide-react";
+import { Upload, Video, Link, FileAudio, AlertCircle } from "lucide-react";
 import { uploadToSpaces } from "@/lib/spaces-upload";
 import {
   extractTranscript,
@@ -41,15 +42,18 @@ export function VideoUpload({ onTranscriptResult }: VideoUploadProps) {
       // Validate file type
       const allowedTypes = [
         "video/mp4",
-        "video/avi",
+        "video/avi", 
         "video/mov",
         "video/wmv",
+        "video/webm",
         "audio/mp3",
         "audio/wav",
         "audio/m4a",
+        "audio/mpeg",
       ];
+      
       if (!allowedTypes.includes(file.type)) {
-        toast.error("Please upload a valid video or audio file");
+        toast.error("Please upload a valid video or audio file (MP4, AVI, MOV, MP3, WAV, M4A)");
         return;
       }
 
@@ -64,47 +68,28 @@ export function VideoUpload({ onTranscriptResult }: VideoUploadProps) {
       setUploadProgress(0);
 
       try {
-        // Step 1: Upload to Digital Ocean Spaces
-        toast.info("Uploading file to cloud storage...");
+        // Process directly with the API (no need for cloud upload for transcription)
+        toast.info("Processing transcript...");
         setUploadProgress(25);
 
-        const uploadedUrl = await uploadToSpaces(file);
-        setUploadProgress(50);
-
-        toast.success("File uploaded successfully!");
-
-        // Step 2: Process with FastAPI backend
-        toast.info("Processing transcript...");
-        setUploadProgress(75);
-
-        let result: TranscriptResponse;
-
-        if (file.type.startsWith("audio/")) {
-          // Direct audio file upload to FastAPI
-          result = await uploadAudioForTranscript(
-            file,
-            aiProvider,
-            formatPrompt
-          );
-        } else {
-          // Video file - send URL to FastAPI for processing
-          result = await extractTranscript({
-            video_url: uploadedUrl,
-            ai_provider: aiProvider,
-            format_prompt: formatPrompt,
-          });
-        }
+        const result = await uploadAudioForTranscript(
+          file,
+          aiProvider,
+          formatPrompt
+        );
 
         setUploadProgress(100);
         toast.success("Transcript generated successfully!");
         onTranscriptResult(result);
       } catch (error) {
         console.error("Upload error:", error);
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : "An error occurred during upload"
-        );
+        
+        let errorMessage = "An error occurred during processing";
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        
+        toast.error(errorMessage);
       } finally {
         setIsLoading(false);
         setUploadProgress(0);
@@ -139,9 +124,13 @@ export function VideoUpload({ onTranscriptResult }: VideoUploadProps) {
       setVideoUrl("");
     } catch (error) {
       console.error("URL processing error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to process video URL"
-      );
+      
+      let errorMessage = "Failed to process video URL";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
       setUploadProgress(0);
@@ -157,6 +146,15 @@ export function VideoUpload({ onTranscriptResult }: VideoUploadProps) {
 
   return (
     <div className="space-y-6">
+      {/* Information Alert */}
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Important:</strong> Direct YouTube URL processing is temporarily unavailable. 
+          Please download videos manually and upload the audio/video files directly for best results.
+        </AlertDescription>
+      </Alert>
+
       {/* AI Provider Selection */}
       <Card>
         <CardHeader>
@@ -203,8 +201,7 @@ export function VideoUpload({ onTranscriptResult }: VideoUploadProps) {
             Upload Video/Audio File
           </CardTitle>
           <CardDescription>
-            Upload a video or audio file (MP4, AVI, MOV, MP3, WAV, M4A - Max
-            100MB)
+            Upload a video or audio file (MP4, AVI, MOV, MP3, WAV, M4A - Max 100MB)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -240,10 +237,10 @@ export function VideoUpload({ onTranscriptResult }: VideoUploadProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Link size={20} />
-            Or Enter Video URL
+            Or Enter Video URL (Beta)
           </CardTitle>
           <CardDescription>
-            Enter a YouTube, Vimeo, or other supported video URL
+            Enter a YouTube, Vimeo, or other supported video URL. Note: Direct URL processing is limited - file upload is recommended.
           </CardDescription>
         </CardHeader>
         <CardContent>
